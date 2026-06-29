@@ -1,0 +1,885 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ARK Scorecard — Admin Dashboard</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<style>
+  :root {
+    --green: #1B4332;
+    --green-mid: #2D6A4F;
+    --gold: #C9A84C;
+    --gold-light: #E9C46A;
+    --cream: #F8F5F0;
+    --charcoal: #1C1C1E;
+    --muted: #6B7280;
+    --white: #FFFFFF;
+    --sidebar: #111827;
+    --sidebar-hover: #1F2937;
+    --red: #DC2626;
+    --yellow: #D97706;
+    --success: #16A34A;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { font-family: 'DM Sans', sans-serif; background: #F3F4F6; color: var(--charcoal); }
+
+  /* ── LOGIN ── */
+  .login-screen {
+    min-height: 100vh;
+    background: var(--green);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 24px;
+  }
+  .login-box {
+    background: rgba(255,255,255,0.05);
+    border: 1px solid rgba(201,168,76,0.3);
+    border-radius: 8px;
+    padding: 48px 40px;
+    width: 100%;
+    max-width: 380px;
+    text-align: center;
+  }
+  .login-logo {
+    font-family: 'DM Mono', monospace;
+    font-size: 52px;
+    color: var(--gold);
+    letter-spacing: 10px;
+    margin-bottom: 4px;
+  }
+  .login-box p { color: rgba(255,255,255,0.5); font-size: 13px; margin-bottom: 40px; }
+  .login-input {
+    width: 100%;
+    padding: 14px 16px;
+    background: rgba(255,255,255,0.08);
+    border: 1px solid rgba(201,168,76,0.3);
+    border-radius: 4px;
+    color: var(--white);
+    font-size: 16px;
+    font-family: 'DM Mono', monospace;
+    letter-spacing: 4px;
+    text-align: center;
+    outline: none;
+    margin-bottom: 12px;
+  }
+  .login-input:focus { border-color: var(--gold); }
+  .login-btn {
+    width: 100%;
+    padding: 14px;
+    background: var(--gold);
+    color: var(--green);
+    font-weight: 700;
+    font-size: 15px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+  }
+  .login-btn:hover { background: var(--gold-light); }
+  .login-err {
+    color: #fca5a5;
+    font-size: 13px;
+    margin-top: 10px;
+    display: none;
+  }
+
+  /* ── LAYOUT ── */
+  .app { display: none; min-height: 100vh; }
+  .app.active { display: flex; }
+  .sidebar {
+    width: 240px;
+    background: var(--sidebar);
+    min-height: 100vh;
+    flex-shrink: 0;
+    display: flex;
+    flex-direction: column;
+    position: fixed;
+    top: 0; left: 0;
+    z-index: 100;
+    overflow-y: auto;
+  }
+  .sidebar-logo {
+    padding: 28px 24px 20px;
+    border-bottom: 1px solid rgba(255,255,255,0.06);
+  }
+  .logo-ark {
+    font-family: 'DM Mono', monospace;
+    font-size: 28px;
+    color: var(--gold);
+    letter-spacing: 6px;
+    font-weight: 500;
+  }
+  .logo-sub {
+    font-size: 10px;
+    color: rgba(255,255,255,0.3);
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    margin-top: 4px;
+  }
+  .nav { padding: 16px 0; flex: 1; }
+  .nav-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 12px 24px;
+    color: rgba(255,255,255,0.5);
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s;
+    border-left: 3px solid transparent;
+  }
+  .nav-item:hover { background: var(--sidebar-hover); color: var(--white); }
+  .nav-item.active { background: var(--sidebar-hover); color: var(--gold); border-left-color: var(--gold); }
+  .nav-item .icon { font-size: 16px; width: 20px; text-align: center; }
+  .sidebar-footer {
+    padding: 16px 24px;
+    border-top: 1px solid rgba(255,255,255,0.06);
+  }
+  .logout-link {
+    color: rgba(255,255,255,0.3);
+    font-size: 13px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .logout-link:hover { color: rgba(255,255,255,0.6); }
+
+  /* ── MAIN ── */
+  .main {
+    margin-left: 240px;
+    flex: 1;
+    min-height: 100vh;
+  }
+  .topbar {
+    background: var(--white);
+    padding: 16px 32px;
+    border-bottom: 1px solid rgba(0,0,0,0.06);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    position: sticky;
+    top: 0;
+    z-index: 90;
+  }
+  .topbar-title { font-size: 18px; font-weight: 600; color: var(--charcoal); }
+  .topbar-meta { font-size: 12px; color: var(--muted); font-family: 'DM Mono', monospace; }
+  .refresh-btn {
+    padding: 8px 16px;
+    background: var(--green);
+    color: var(--gold);
+    border: none;
+    border-radius: 4px;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+  }
+
+  .page { display: none; padding: 32px; }
+  .page.active { display: block; }
+
+  /* ── KPI CARDS ── */
+  .kpi-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 20px;
+    margin-bottom: 32px;
+  }
+  .kpi-card {
+    background: var(--white);
+    border-radius: 8px;
+    padding: 24px;
+    border: 1px solid rgba(0,0,0,0.06);
+    position: relative;
+    overflow: hidden;
+  }
+  .kpi-card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 3px;
+    background: var(--gold);
+  }
+  .kpi-label { font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 2px; color: var(--muted); margin-bottom: 8px; }
+  .kpi-num { font-family: 'DM Mono', monospace; font-size: 36px; font-weight: 500; color: var(--green); }
+  .kpi-sub { font-size: 12px; color: var(--muted); margin-top: 4px; }
+
+  /* ── MAP ── */
+  .map-container {
+    background: var(--white);
+    border-radius: 8px;
+    padding: 24px;
+    border: 1px solid rgba(0,0,0,0.06);
+    margin-bottom: 24px;
+  }
+  .section-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 16px;
+  }
+  .section-title { font-size: 16px; font-weight: 600; color: var(--charcoal); }
+  .map-legend {
+    display: flex;
+    gap: 16px;
+    font-size: 12px;
+    color: var(--muted);
+  }
+  .legend-dot {
+    display: inline-block;
+    width: 10px; height: 10px;
+    border-radius: 50%;
+    margin-right: 4px;
+    vertical-align: middle;
+  }
+  #hostilityMap { height: 480px; border-radius: 4px; z-index: 1; }
+
+  /* ── TABLE ── */
+  .table-container {
+    background: var(--white);
+    border-radius: 8px;
+    border: 1px solid rgba(0,0,0,0.06);
+    overflow: hidden;
+    margin-bottom: 24px;
+  }
+  .table-header {
+    padding: 20px 24px;
+    border-bottom: 1px solid rgba(0,0,0,0.06);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+  .table-actions { display: flex; gap: 10px; }
+  .icon-btn {
+    padding: 8px 16px;
+    border-radius: 4px;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    border: none;
+  }
+  .btn-outline { background: transparent; border: 1px solid rgba(0,0,0,0.12); color: var(--charcoal); }
+  .btn-green { background: var(--green); color: var(--gold); }
+  table { width: 100%; border-collapse: collapse; }
+  th {
+    background: #F9FAFB;
+    padding: 12px 16px;
+    text-align: left;
+    font-size: 11px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: var(--muted);
+    border-bottom: 1px solid rgba(0,0,0,0.06);
+  }
+  td {
+    padding: 14px 16px;
+    font-size: 14px;
+    border-bottom: 1px solid rgba(0,0,0,0.04);
+    vertical-align: middle;
+  }
+  tr:last-child td { border-bottom: none; }
+  tr:hover td { background: #F9FAFB; }
+  .code-tag {
+    font-family: 'DM Mono', monospace;
+    font-size: 13px;
+    background: var(--cream);
+    padding: 3px 8px;
+    border-radius: 3px;
+    border: 1px solid rgba(0,0,0,0.08);
+    color: var(--green);
+    font-weight: 500;
+  }
+  .status-badge {
+    padding: 4px 10px;
+    border-radius: 12px;
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+  }
+  .status-active { background: #dcfce7; color: var(--success); }
+  .status-hostile { background: #fee2e2; color: var(--red); }
+  .status-cold { background: #fef3c7; color: var(--yellow); }
+  .status-unregistered { background: #F3F4F6; color: var(--muted); }
+
+  .scan-bar {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .scan-bar-track {
+    flex: 1;
+    height: 6px;
+    background: #E5E7EB;
+    border-radius: 3px;
+    overflow: hidden;
+    min-width: 80px;
+  }
+  .scan-bar-fill { height: 100%; border-radius: 3px; background: var(--gold); }
+
+  /* ── GENERATE CODE ── */
+  .code-gen-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 24px;
+  }
+  .gen-card {
+    background: var(--white);
+    border-radius: 8px;
+    padding: 24px;
+    border: 1px solid rgba(0,0,0,0.06);
+  }
+  .gen-card h3 { font-size: 15px; font-weight: 600; margin-bottom: 20px; color: var(--charcoal); }
+  .gen-input {
+    width: 100%;
+    padding: 12px 14px;
+    border: 1.5px solid rgba(0,0,0,0.12);
+    border-radius: 4px;
+    font-size: 14px;
+    font-family: 'DM Sans', sans-serif;
+    outline: none;
+    margin-bottom: 12px;
+  }
+  .gen-input:focus { border-color: var(--gold); }
+  .generated-codes {
+    background: var(--cream);
+    border-radius: 4px;
+    padding: 16px;
+    font-family: 'DM Mono', monospace;
+    font-size: 13px;
+    color: var(--green);
+    line-height: 2;
+    max-height: 300px;
+    overflow-y: auto;
+    white-space: pre-wrap;
+    word-break: break-all;
+    display: none;
+  }
+  .generated-codes.show { display: block; }
+
+  /* ── CHART (simple bars) ── */
+  .chart-bars {
+    display: flex;
+    align-items: flex-end;
+    gap: 8px;
+    height: 160px;
+    padding: 0 8px;
+  }
+  .chart-bar-wrap { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 4px; }
+  .chart-bar {
+    width: 100%;
+    background: var(--gold);
+    border-radius: 2px 2px 0 0;
+    min-height: 4px;
+    transition: height 0.5s;
+    opacity: 0.85;
+  }
+  .chart-bar:hover { opacity: 1; }
+  .chart-label { font-size: 10px; color: var(--muted); }
+  .chart-val { font-size: 10px; font-family: 'DM Mono', monospace; color: var(--green); }
+
+  .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; }
+  .empty-msg { color: var(--muted); font-size: 14px; text-align: center; padding: 40px; }
+
+  @media(max-width: 900px) {
+    .sidebar { display: none; }
+    .main { margin-left: 0; }
+    .kpi-grid { grid-template-columns: repeat(2, 1fr); }
+    .code-gen-grid, .two-col { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+
+<!-- LOGIN -->
+<div id="loginScreen" class="login-screen">
+  <div class="login-box">
+    <div class="login-logo">ARK</div>
+    <p>Scorecard Admin Dashboard</p>
+    <input type="password" class="login-input" id="adminPwd" placeholder="Password" onkeydown="if(event.key==='Enter')doAdminLogin()">
+    <button class="login-btn" onclick="doAdminLogin()">Access Dashboard</button>
+    <div class="login-err" id="loginErr">Incorrect password</div>
+  </div>
+</div>
+
+<!-- APP -->
+<div class="app" id="adminApp">
+  <!-- SIDEBAR -->
+  <div class="sidebar">
+    <div class="sidebar-logo">
+      <div class="logo-ark">ARK</div>
+      <div class="logo-sub">Admin Dashboard</div>
+    </div>
+    <nav class="nav">
+      <div class="nav-item active" onclick="showPage('pageOverview', this)">
+        <span class="icon">📊</span> Overview
+      </div>
+      <div class="nav-item" onclick="showPage('pageMap', this)">
+        <span class="icon">🗺️</span> Hostility Map
+      </div>
+      <div class="nav-item" onclick="showPage('pageLocations', this)">
+        <span class="icon">📍</span> Locations
+      </div>
+      <div class="nav-item" onclick="showPage('pageAgents', this)">
+        <span class="icon">👤</span> Agents
+      </div>
+      <div class="nav-item" onclick="showPage('pageCodes', this)">
+        <span class="icon">🔑</span> Code Generator
+      </div>
+    </nav>
+    <div class="sidebar-footer">
+      <div class="logout-link" onclick="doAdminLogout()">⬅ Sign Out</div>
+    </div>
+  </div>
+
+  <!-- MAIN -->
+  <div class="main">
+    <div class="topbar">
+      <div>
+        <div class="topbar-title" id="topbarTitle">Overview</div>
+        <div class="topbar-meta" id="topbarMeta">Loading data...</div>
+      </div>
+      <button class="refresh-btn" onclick="loadData()">↻ Refresh</button>
+    </div>
+
+    <!-- OVERVIEW -->
+    <div class="page active" id="pageOverview">
+      <div class="kpi-grid">
+        <div class="kpi-card">
+          <div class="kpi-label">Total Scans</div>
+          <div class="kpi-num" id="kpiTotalScans">—</div>
+          <div class="kpi-sub">All time</div>
+        </div>
+        <div class="kpi-card">
+          <div class="kpi-label">Locations Deployed</div>
+          <div class="kpi-num" id="kpiLocations">—</div>
+          <div class="kpi-sub">Stickers placed</div>
+        </div>
+        <div class="kpi-card">
+          <div class="kpi-label">Active Locations</div>
+          <div class="kpi-num" id="kpiActive">—</div>
+          <div class="kpi-sub">1+ scans received</div>
+        </div>
+        <div class="kpi-card" style="--before-bg: #DC2626;">
+          <div class="kpi-label">Hostile Zones</div>
+          <div class="kpi-num" id="kpiHostile" style="color: #DC2626;">—</div>
+          <div class="kpi-sub">0 scans after 7 days</div>
+        </div>
+      </div>
+
+      <div class="two-col">
+        <div class="table-container">
+          <div class="table-header">
+            <div class="section-title">📈 Scans This Week</div>
+          </div>
+          <div style="padding: 24px">
+            <div class="chart-bars" id="weekChart"></div>
+          </div>
+        </div>
+
+        <div class="table-container">
+          <div class="table-header">
+            <div class="section-title">🔥 Top Performing Locations</div>
+          </div>
+          <table>
+            <thead><tr><th>Code</th><th>Location</th><th>Scans</th></tr></thead>
+            <tbody id="topLocTable">
+              <tr><td colspan="3" class="empty-msg">Loading...</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="table-container">
+        <div class="table-header">
+          <div class="section-title">🔴 Hostile Zones (0 scans, 7+ days)</div>
+        </div>
+        <table>
+          <thead><tr><th>Code</th><th>Location</th><th>Ward</th><th>Agent</th><th>Deployed</th><th>Status</th></tr></thead>
+          <tbody id="hostileTable">
+            <tr><td colspan="6" class="empty-msg">Loading...</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- MAP PAGE -->
+    <div class="page" id="pageMap">
+      <div class="map-container">
+        <div class="section-header">
+          <div class="section-title">🗺️ ARK Deployment & Hostility Map — Ikeja II</div>
+          <div class="map-legend">
+            <span><span class="legend-dot" style="background:#16A34A"></span>Active</span>
+            <span><span class="legend-dot" style="background:#D97706"></span>Low Activity</span>
+            <span><span class="legend-dot" style="background:#DC2626"></span>Hostile / No Scans</span>
+            <span><span class="legend-dot" style="background:#6B7280"></span>Unregistered</span>
+          </div>
+        </div>
+        <div id="hostilityMap"></div>
+      </div>
+    </div>
+
+    <!-- LOCATIONS PAGE -->
+    <div class="page" id="pageLocations">
+      <div class="table-container">
+        <div class="table-header">
+          <div class="section-title">All Deployed Locations</div>
+          <div class="table-actions">
+            <button class="icon-btn btn-outline" onclick="exportCSV()">⬇ Export CSV</button>
+          </div>
+        </div>
+        <table>
+          <thead>
+            <tr>
+              <th>Code</th>
+              <th>Location</th>
+              <th>Type</th>
+              <th>Ward</th>
+              <th>Agent</th>
+              <th>Scans</th>
+              <th>Status</th>
+            </tr>
+          </thead>
+          <tbody id="locationsTable">
+            <tr><td colspan="7" class="empty-msg">Loading...</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- AGENTS PAGE -->
+    <div class="page" id="pageAgents">
+      <div class="table-container">
+        <div class="table-header">
+          <div class="section-title">Field Agent Performance</div>
+        </div>
+        <table>
+          <thead>
+            <tr>
+              <th>Agent Name</th>
+              <th>Locations Deployed</th>
+              <th>Total Scans</th>
+              <th>Active Locations</th>
+              <th>Hostile Locations</th>
+            </tr>
+          </thead>
+          <tbody id="agentsTable">
+            <tr><td colspan="5" class="empty-msg">Loading...</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- CODE GENERATOR PAGE -->
+    <div class="page" id="pageCodes">
+      <div class="code-gen-grid">
+        <div class="gen-card">
+          <h3>🔑 Generate Code Batch</h3>
+          <label style="font-size:12px;color:var(--muted);display:block;margin-bottom:6px">Prefix</label>
+          <input type="text" class="gen-input" id="genPrefix" value="IK2" maxlength="4" placeholder="IK2" style="font-family:'DM Mono',monospace;letter-spacing:3px;text-transform:uppercase">
+          <label style="font-size:12px;color:var(--muted);display:block;margin-bottom:6px">Starting Number</label>
+          <input type="number" class="gen-input" id="genStart" value="1" min="1">
+          <label style="font-size:12px;color:var(--muted);display:block;margin-bottom:6px">How many codes</label>
+          <input type="number" class="gen-input" id="genCount" value="100" min="1" max="5000">
+          <button class="icon-btn btn-green" style="width:100%;padding:12px" onclick="generateCodes()">Generate Codes</button>
+          <div style="margin-top:12px">
+            <button class="icon-btn btn-outline" style="width:100%;padding:12px" onclick="downloadCodes()" id="downloadBtn" disabled>⬇ Download as CSV</button>
+          </div>
+        </div>
+
+        <div class="gen-card">
+          <h3>📋 Generated Codes</h3>
+          <div class="generated-codes" id="generatedOutput">Codes will appear here...</div>
+        </div>
+      </div>
+
+      <div class="gen-card" style="margin-top:24px">
+        <h3>📖 How Codes Work</h3>
+        <div style="font-size:14px;color:var(--muted);line-height:1.8">
+          <p>1. Generate a batch of codes (e.g. IK2-001 to IK2-5000)</p>
+          <p>2. Print all 5,000 QR stickers identically — same QR, same design</p>
+          <p>3. Distribute stickers to field agents with a separate list of their assigned codes</p>
+          <p>4. Agent arrives at location → writes assigned code on the sticker's blank space → registers it via the Field Agent Portal</p>
+          <p>5. Public scans QR → enters code → scan is attributed to that location</p>
+          <p>6. Admin sees scan data per location on this dashboard</p>
+        </div>
+      </div>
+    </div>
+
+  </div><!-- /main -->
+</div><!-- /app -->
+
+<script>
+const ADMIN_PWD = 'Beckham';
+let allData = { scans: [], locations: [], agents: [] };
+let map = null;
+let generatedCodes = [];
+
+function doAdminLogin() {
+  const pwd = document.getElementById('adminPwd').value;
+  if (pwd === ADMIN_PWD) {
+    document.getElementById('loginScreen').style.display = 'none';
+    document.getElementById('adminApp').classList.add('active');
+    loadData();
+    setTimeout(initMap, 300);
+  } else {
+    document.getElementById('loginErr').style.display = 'block';
+  }
+}
+
+function doAdminLogout() {
+  document.getElementById('loginScreen').style.display = 'flex';
+  document.getElementById('adminApp').classList.remove('active');
+  document.getElementById('adminPwd').value = '';
+}
+
+function showPage(id, el) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  el.classList.add('active');
+  const titles = {
+    pageOverview: 'Overview',
+    pageMap: 'Hostility Map',
+    pageLocations: 'Locations',
+    pageAgents: 'Field Agents',
+    pageCodes: 'Code Generator'
+  };
+  document.getElementById('topbarTitle').textContent = titles[id] || id;
+  if (id === 'pageMap' && map) setTimeout(() => map.invalidateSize(), 100);
+}
+
+async function loadData() {
+  document.getElementById('topbarMeta').textContent = 'Refreshing...';
+  try {
+    const [scansRes, locsRes] = await Promise.all([
+      fetch('/api/stats'),
+      fetch('/api/locations')
+    ]);
+    const scansData = await scansRes.json();
+    const locsData = await locsRes.json();
+    allData.scans = scansData.scans || [];
+    allData.locations = locsData.locations || [];
+    renderAll();
+    document.getElementById('topbarMeta').textContent = `Last updated: ${new Date().toLocaleTimeString()}`;
+  } catch {
+    // Use demo data if API not yet live
+    allData = getDemoData();
+    renderAll();
+    document.getElementById('topbarMeta').textContent = 'Demo data — API connecting...';
+  }
+}
+
+function getDemoData() {
+  const wards = ['opebi','oregun','maryland','ikeja_gra','omole','anthony'];
+  const types = ['market','junction','school','church','mosque','bus_stop'];
+  const agents = ['Tunde Adeyemi','Kemi Olaitan','Biodun Fashola','Amaka Nwosu'];
+  const locations = [];
+  for (let i = 1; i <= 24; i++) {
+    const daysAgo = Math.floor(Math.random() * 14);
+    const scans = daysAgo > 7 && Math.random() > 0.4 ? 0 : Math.floor(Math.random() * 40);
+    locations.push({
+      code: `IK2-${String(i).padStart(3,'0')}`,
+      name: ['Oba Akinjobi Market','CMD Road Junction','Oregun Bus Stop','Maryland Mall Gate','Omole Estate Gate','LASU Junction','Ikeja Along Junction','Opebi Roundabout','Allen Avenue Junction','Awolowo Road','Toyin Street Bus Stop','Agidingbi Road'][i % 12] + (i > 12 ? ` (${i})` : ''),
+      type: types[i % types.length],
+      ward: wards[i % wards.length],
+      agent: agents[i % agents.length],
+      timestamp: new Date(Date.now() - daysAgo * 86400000).toISOString(),
+      scans,
+      lat: 6.58 + (Math.random() - 0.5) * 0.06,
+      lng: 3.36 + (Math.random() - 0.5) * 0.06
+    });
+  }
+  const weekScans = Array.from({length:7}, (_,i) => ({
+    day: ['Mon','Tue','Wed','Thu','Fri','Sat','Sun'][i],
+    count: Math.floor(Math.random() * 80 + 5)
+  }));
+  return { locations, weekScans };
+}
+
+function renderAll() {
+  const locs = allData.locations;
+  const weekScans = allData.weekScans || [];
+  const now = Date.now();
+
+  const totalScans = locs.reduce((s, l) => s + (l.scans || 0), 0);
+  const active = locs.filter(l => (l.scans || 0) > 0).length;
+  const hostile = locs.filter(l => {
+    const age = (now - new Date(l.timestamp).getTime()) / 86400000;
+    return age >= 7 && (l.scans || 0) === 0;
+  }).length;
+
+  document.getElementById('kpiTotalScans').textContent = totalScans.toLocaleString();
+  document.getElementById('kpiLocations').textContent = locs.length;
+  document.getElementById('kpiActive').textContent = active;
+  document.getElementById('kpiHostile').textContent = hostile;
+
+  // Week chart
+  const chartEl = document.getElementById('weekChart');
+  const maxScans = Math.max(...weekScans.map(d => d.count), 1);
+  chartEl.innerHTML = weekScans.map(d => `
+    <div class="chart-bar-wrap">
+      <div class="chart-val">${d.count}</div>
+      <div class="chart-bar" style="height:${Math.max(4, (d.count/maxScans)*130)}px"></div>
+      <div class="chart-label">${d.day}</div>
+    </div>
+  `).join('');
+
+  // Top locations
+  const sorted = [...locs].sort((a,b) => (b.scans||0) - (a.scans||0)).slice(0,5);
+  const maxS = sorted[0]?.scans || 1;
+  document.getElementById('topLocTable').innerHTML = sorted.length ? sorted.map(l => `
+    <tr>
+      <td><span class="code-tag">${l.code}</span></td>
+      <td>${l.name}</td>
+      <td>
+        <div class="scan-bar">
+          <div class="scan-bar-track"><div class="scan-bar-fill" style="width:${Math.max(4,(l.scans/maxS)*100)}%"></div></div>
+          <span style="font-family:'DM Mono',monospace;font-size:13px;min-width:24px">${l.scans}</span>
+        </div>
+      </td>
+    </tr>
+  `).join('') : '<tr><td colspan="3" class="empty-msg">No data yet</td></tr>';
+
+  // Hostile table
+  const hostileLocs = locs.filter(l => {
+    const age = (now - new Date(l.timestamp).getTime()) / 86400000;
+    return age >= 7 && (l.scans || 0) === 0;
+  });
+  document.getElementById('hostileTable').innerHTML = hostileLocs.length ? hostileLocs.map(l => `
+    <tr>
+      <td><span class="code-tag">${l.code}</span></td>
+      <td>${l.name}</td>
+      <td>${l.ward || '—'}</td>
+      <td>${l.agent || '—'}</td>
+      <td>${new Date(l.timestamp).toLocaleDateString('en-GB')}</td>
+      <td><span class="status-badge status-hostile">Hostile</span></td>
+    </tr>
+  `).join('') : '<tr><td colspan="6" class="empty-msg">No hostile zones detected</td></tr>';
+
+  // Locations table
+  document.getElementById('locationsTable').innerHTML = locs.length ? locs.map(l => {
+    const age = (now - new Date(l.timestamp).getTime()) / 86400000;
+    const status = (l.scans||0) > 5 ? 'active' : age >= 7 && (l.scans||0) === 0 ? 'hostile' : (l.scans||0) > 0 ? 'cold' : 'unregistered';
+    const labels = { active: 'Active', hostile: 'Hostile', cold: 'Low Activity', unregistered: 'No Scans' };
+    const maxForBar = Math.max(...locs.map(x => x.scans||0), 1);
+    return `
+      <tr>
+        <td><span class="code-tag">${l.code}</span></td>
+        <td>${l.name}</td>
+        <td>${l.type || '—'}</td>
+        <td>${l.ward || '—'}</td>
+        <td>${l.agent || '—'}</td>
+        <td>
+          <div class="scan-bar">
+            <div class="scan-bar-track"><div class="scan-bar-fill" style="width:${Math.max(2,((l.scans||0)/maxForBar)*100)}%"></div></div>
+            <span style="font-family:'DM Mono',monospace;font-size:13px;min-width:24px">${l.scans||0}</span>
+          </div>
+        </td>
+        <td><span class="status-badge status-${status}">${labels[status]}</span></td>
+      </tr>
+    `;
+  }).join('') : '<tr><td colspan="7" class="empty-msg">No locations registered yet</td></tr>';
+
+  // Agents table
+  const agentMap = {};
+  locs.forEach(l => {
+    const a = l.agent || 'Unknown';
+    if (!agentMap[a]) agentMap[a] = { deployed:0, scans:0, active:0, hostile:0 };
+    agentMap[a].deployed++;
+    agentMap[a].scans += (l.scans||0);
+    if ((l.scans||0) > 0) agentMap[a].active++;
+    const age = (now - new Date(l.timestamp).getTime()) / 86400000;
+    if (age >= 7 && (l.scans||0) === 0) agentMap[a].hostile++;
+  });
+  document.getElementById('agentsTable').innerHTML = Object.entries(agentMap).length ?
+    Object.entries(agentMap).sort((a,b) => b[1].scans - a[1].scans).map(([name, d]) => `
+      <tr>
+        <td><strong>${name}</strong></td>
+        <td>${d.deployed}</td>
+        <td>${d.scans}</td>
+        <td><span style="color:var(--success);font-weight:600">${d.active}</span></td>
+        <td><span style="color:${d.hostile > 0 ? 'var(--red)' : 'var(--muted)'};font-weight:600">${d.hostile}</span></td>
+      </tr>
+    `).join('') : '<tr><td colspan="5" class="empty-msg">No agent data yet</td></tr>';
+
+  // Update map markers
+  updateMapMarkers(locs);
+}
+
+function initMap() {
+  if (map) return;
+  map = L.map('hostilityMap').setView([6.5954, 3.3403], 13);
+  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    attribution: '© OpenStreetMap contributors'
+  }).addTo(map);
+  updateMapMarkers(allData.locations || []);
+}
+
+function updateMapMarkers(locs) {
+  if (!map) return;
+  map.eachLayer(l => { if (l instanceof L.CircleMarker) map.removeLayer(l); });
+  const now = Date.now();
+  locs.forEach(l => {
+    if (!l.lat || !l.lng) return;
+    const age = (now - new Date(l.timestamp).getTime()) / 86400000;
+    const scans = l.scans || 0;
+    const color = scans > 5 ? '#16A34A' : age >= 7 && scans === 0 ? '#DC2626' : scans > 0 ? '#D97706' : '#6B7280';
+    L.circleMarker([l.lat, l.lng], {
+      radius: Math.max(8, Math.min(20, 8 + scans * 0.5)),
+      fillColor: color,
+      color: '#fff',
+      weight: 2,
+      opacity: 1,
+      fillOpacity: 0.85
+    }).addTo(map).bindPopup(`
+      <strong>${l.code}</strong><br>
+      ${l.name}<br>
+      <em>${l.ward || ''}</em><br>
+      Scans: <strong>${scans}</strong><br>
+      Agent: ${l.agent || '—'}
+    `);
+  });
+}
+
+function generateCodes() {
+  const prefix = document.getElementById('genPrefix').value.trim().toUpperCase() || 'IK2';
+  const start = parseInt(document.getElementById('genStart').value) || 1;
+  const count = Math.min(5000, parseInt(document.getElementById('genCount').value) || 100);
+  generatedCodes = [];
+  for (let i = start; i < start + count; i++) {
+    generatedCodes.push(`${prefix}-${String(i).padStart(3,'0')}`);
+  }
+  const out = document.getElementById('generatedOutput');
+  out.textContent = generatedCodes.join('\n');
+  out.classList.add('show');
+  document.getElementById('downloadBtn').disabled = false;
+}
+
+function downloadCodes() {
+  const csv = 'Code,Status\n' + generatedCodes.map(c => `${c},Undeployed`).join('\n');
+  const blob = new Blob([csv], { type: 'text/csv' });
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = `ARK-codes-${new Date().toISOString().slice(0,10)}.csv`;
+  a.click();
+}
+
+function exportCSV() {
+  const locs = allData.locations || [];
+  const csv = 'Code,Name,Type,Ward,Agent,Scans,Deployed\n' +
+    locs.map(l => `${l.code},"${l.name}",${l.type||''},${l.ward||''},${l.agent||''},${l.scans||0},${l.timestamp}`).join('\n');
+  const blob = new Blob([csv], { type: 'text/csv' });
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = `ARK-locations-${new Date().toISOString().slice(0,10)}.csv`;
+  a.click();
+}
+</script>
+</body>
+</html>

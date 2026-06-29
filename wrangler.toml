@@ -1,0 +1,6 @@
+name = "ark-scorecard"
+compatibility_date = "2024-01-01"
+
+[[kv_namespaces]]
+binding = "ARK_KV"
+id = "ARK_KV_PLACEHOLDER"

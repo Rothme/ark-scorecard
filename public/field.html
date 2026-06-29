@@ -1,0 +1,641 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>ARK Field Agent Portal</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --green: #1B4332;
+    --green-mid: #2D6A4F;
+    --gold: #C9A84C;
+    --gold-light: #E9C46A;
+    --cream: #F8F5F0;
+    --charcoal: #1C1C1E;
+    --muted: #6B7280;
+    --white: #FFFFFF;
+    --red: #DC2626;
+    --success: #16A34A;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+  body { font-family: 'DM Sans', sans-serif; background: var(--cream); color: var(--charcoal); min-height: 100vh; }
+
+  /* ── HEADER ── */
+  .header {
+    background: var(--green);
+    padding: 16px 20px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+  }
+  .header-logo {
+    font-family: 'DM Mono', monospace;
+    color: var(--gold);
+    font-size: 20px;
+    font-weight: 500;
+    letter-spacing: 3px;
+  }
+  .header-agent {
+    color: rgba(255,255,255,0.6);
+    font-size: 12px;
+    text-align: right;
+  }
+  .header-agent span {
+    color: var(--gold-light);
+    font-weight: 600;
+    display: block;
+    font-size: 14px;
+  }
+  .logout-btn {
+    background: none;
+    border: 1px solid rgba(255,255,255,0.2);
+    color: rgba(255,255,255,0.6);
+    padding: 6px 12px;
+    border-radius: 4px;
+    font-size: 12px;
+    cursor: pointer;
+  }
+
+  /* ── LOGIN ── */
+  .login-screen {
+    min-height: 100vh;
+    background: var(--green);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 32px 24px;
+    text-align: center;
+  }
+  .login-logo {
+    font-family: 'DM Mono', monospace;
+    font-size: 48px;
+    color: var(--gold);
+    letter-spacing: 8px;
+    margin-bottom: 8px;
+  }
+  .login-sub {
+    color: rgba(255,255,255,0.6);
+    font-size: 14px;
+    margin-bottom: 48px;
+    letter-spacing: 1px;
+  }
+  .login-card {
+    background: rgba(255,255,255,0.05);
+    border: 1px solid rgba(201,168,76,0.2);
+    border-radius: 8px;
+    padding: 32px 24px;
+    width: 100%;
+    max-width: 340px;
+  }
+  .login-card h2 {
+    color: var(--white);
+    font-size: 18px;
+    margin-bottom: 24px;
+    font-weight: 500;
+  }
+  .field-group { margin-bottom: 16px; text-align: left; }
+  .field-label {
+    color: rgba(255,255,255,0.6);
+    font-size: 11px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    margin-bottom: 6px;
+    display: block;
+  }
+  .field-input {
+    width: 100%;
+    padding: 14px 16px;
+    background: rgba(255,255,255,0.08);
+    border: 1px solid rgba(201,168,76,0.3);
+    border-radius: 4px;
+    color: var(--white);
+    font-size: 16px;
+    font-family: 'DM Sans', sans-serif;
+    outline: none;
+  }
+  .field-input:focus { border-color: var(--gold); }
+  .field-input::placeholder { color: rgba(255,255,255,0.3); }
+  .pin-input {
+    font-family: 'DM Mono', monospace;
+    font-size: 24px;
+    letter-spacing: 8px;
+    text-align: center;
+  }
+  .primary-btn {
+    width: 100%;
+    padding: 16px;
+    background: var(--gold);
+    color: var(--green);
+    font-weight: 700;
+    font-size: 15px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    margin-top: 8px;
+    transition: background 0.2s;
+  }
+  .primary-btn:hover { background: var(--gold-light); }
+  .primary-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+  .login-error {
+    background: rgba(220,38,38,0.2);
+    border: 1px solid rgba(220,38,38,0.4);
+    color: #fca5a5;
+    padding: 12px;
+    border-radius: 4px;
+    font-size: 13px;
+    margin-top: 12px;
+    display: none;
+  }
+
+  /* ── APP SCREENS ── */
+  .app-screen { display: none; padding: 20px; }
+  .app-screen.active { display: block; }
+
+  /* ── TABS ── */
+  .tabs {
+    display: flex;
+    background: var(--white);
+    border-bottom: 2px solid rgba(27,67,50,0.08);
+    margin: -20px -20px 24px;
+    position: sticky;
+    top: 56px;
+    z-index: 90;
+  }
+  .tab {
+    flex: 1;
+    padding: 14px 8px;
+    text-align: center;
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--muted);
+    cursor: pointer;
+    border-bottom: 2px solid transparent;
+    margin-bottom: -2px;
+    transition: all 0.2s;
+  }
+  .tab.active { color: var(--green); border-bottom-color: var(--gold); }
+
+  /* ── REGISTER FORM ── */
+  .form-card {
+    background: var(--white);
+    border-radius: 8px;
+    padding: 24px;
+    margin-bottom: 16px;
+    border: 1px solid rgba(27,67,50,0.08);
+  }
+  .form-card h3 {
+    font-size: 16px;
+    color: var(--green);
+    margin-bottom: 20px;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .form-group { margin-bottom: 16px; }
+  .form-label {
+    display: block;
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 6px;
+  }
+  .form-input, .form-select {
+    width: 100%;
+    padding: 14px 16px;
+    border: 1.5px solid rgba(27,67,50,0.15);
+    border-radius: 4px;
+    font-size: 15px;
+    font-family: 'DM Sans', sans-serif;
+    color: var(--charcoal);
+    background: var(--white);
+    outline: none;
+    transition: border-color 0.2s;
+  }
+  .form-input:focus, .form-select:focus { border-color: var(--gold); }
+  .code-display {
+    font-family: 'DM Mono', monospace;
+    font-size: 28px;
+    font-weight: 500;
+    color: var(--green);
+    letter-spacing: 4px;
+    text-align: center;
+    padding: 20px;
+    background: var(--cream);
+    border-radius: 4px;
+    border: 2px dashed var(--gold);
+    margin-bottom: 8px;
+  }
+  .code-hint {
+    font-size: 12px;
+    color: var(--muted);
+    text-align: center;
+    margin-bottom: 16px;
+  }
+
+  .success-banner {
+    background: #dcfce7;
+    border: 1px solid #86efac;
+    border-radius: 4px;
+    padding: 16px;
+    text-align: center;
+    display: none;
+    margin-bottom: 16px;
+  }
+  .success-banner.show { display: block; }
+  .success-banner strong {
+    display: block;
+    font-size: 16px;
+    color: var(--success);
+    margin-bottom: 4px;
+  }
+  .success-banner span { font-size: 13px; color: var(--green); }
+
+  /* ── MY DEPLOYMENTS ── */
+  .deployment-list { display: flex; flex-direction: column; gap: 12px; }
+  .deployment-item {
+    background: var(--white);
+    border-radius: 8px;
+    padding: 16px;
+    border: 1px solid rgba(27,67,50,0.08);
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+  .deploy-code {
+    font-family: 'DM Mono', monospace;
+    font-size: 14px;
+    font-weight: 500;
+    color: var(--green);
+    background: var(--cream);
+    padding: 6px 10px;
+    border-radius: 4px;
+    white-space: nowrap;
+    min-width: 90px;
+    text-align: center;
+    border: 1px solid rgba(27,67,50,0.1);
+  }
+  .deploy-info { flex: 1; min-width: 0; }
+  .deploy-name {
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--charcoal);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .deploy-meta { font-size: 12px; color: var(--muted); margin-top: 2px; }
+  .deploy-badge {
+    font-size: 11px;
+    padding: 4px 8px;
+    border-radius: 12px;
+    font-weight: 600;
+    white-space: nowrap;
+  }
+  .badge-active { background: #dcfce7; color: var(--success); }
+  .badge-pending { background: #fef3c7; color: #92400e; }
+
+  /* ── STATS TAB ── */
+  .stats-row {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 12px;
+    margin-bottom: 20px;
+  }
+  .mini-stat {
+    background: var(--white);
+    border-radius: 8px;
+    padding: 16px;
+    text-align: center;
+    border: 1px solid rgba(27,67,50,0.08);
+  }
+  .mini-stat-num {
+    font-family: 'DM Mono', monospace;
+    font-size: 32px;
+    color: var(--green);
+    font-weight: 500;
+  }
+  .mini-stat-lbl { font-size: 11px; color: var(--muted); margin-top: 4px; text-transform: uppercase; letter-spacing: 1px; }
+
+  .empty-state {
+    text-align: center;
+    padding: 48px 24px;
+    color: var(--muted);
+  }
+  .empty-state .icon { font-size: 48px; margin-bottom: 16px; }
+  .empty-state p { font-size: 15px; line-height: 1.6; }
+
+  /* ── TOAST ── */
+  .toast {
+    position: fixed;
+    bottom: 24px;
+    left: 50%;
+    transform: translateX(-50%) translateY(100px);
+    background: var(--green);
+    color: var(--gold);
+    padding: 12px 20px;
+    border-radius: 4px;
+    font-size: 14px;
+    font-weight: 500;
+    border: 1px solid var(--gold);
+    transition: transform 0.3s;
+    z-index: 1000;
+    white-space: nowrap;
+  }
+  .toast.show { transform: translateX(-50%) translateY(0); }
+</style>
+</head>
+<body>
+
+<!-- LOGIN -->
+<div id="loginScreen" class="login-screen">
+  <div class="login-logo">ARK</div>
+  <div class="login-sub">Field Agent Portal</div>
+  <div class="login-card">
+    <h2>Agent Sign In</h2>
+    <div class="field-group">
+      <label class="field-label">Your Name</label>
+      <input type="text" class="field-input" id="agentName" placeholder="Enter your name">
+    </div>
+    <div class="field-group">
+      <label class="field-label">Agent PIN</label>
+      <input type="password" class="field-input pin-input" id="agentPin" placeholder="····" maxlength="4" inputmode="numeric">
+    </div>
+    <button class="primary-btn" onclick="doLogin()">Sign In</button>
+    <div class="login-error" id="loginError">Incorrect PIN. Try again.</div>
+  </div>
+</div>
+
+<!-- APP -->
+<div id="appScreen" style="display:none">
+  <div class="header">
+    <div class="header-logo">ARK</div>
+    <div class="header-agent">
+      Field Agent
+      <span id="headerName">—</span>
+    </div>
+    <button class="logout-btn" onclick="doLogout()">Sign Out</button>
+  </div>
+
+  <!-- REGISTER TAB -->
+  <div class="app-screen active" id="tabRegister">
+    <div class="tabs">
+      <div class="tab active" onclick="switchTab('tabRegister', this)">📍 Register Location</div>
+      <div class="tab" onclick="switchTab('tabDeployments', this)">📋 My Deployments</div>
+      <div class="tab" onclick="switchTab('tabStats', this)">📊 Stats</div>
+    </div>
+
+    <div class="success-banner" id="successBanner">
+      <strong>✓ Location Registered!</strong>
+      <span id="successMsg">Code attached to location successfully.</span>
+    </div>
+
+    <div class="form-card">
+      <h3>📍 Register New Deployment</h3>
+
+      <div class="form-group">
+        <label class="form-label">Location Code (from sticker)</label>
+        <input type="text" class="form-input" id="regCode" placeholder="e.g. IK2-047" maxlength="10" style="font-family: 'DM Mono', monospace; font-size: 20px; letter-spacing: 3px; text-transform: uppercase; text-align: center;">
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">Location Name</label>
+        <input type="text" class="form-input" id="regName" placeholder="e.g. Oba Akinjobi Market, Opebi">
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">Location Type</label>
+        <select class="form-select" id="regType">
+          <option value="">— Select type —</option>
+          <option value="market">🛒 Market</option>
+          <option value="junction">🚦 Road Junction</option>
+          <option value="school">🏫 School Gate</option>
+          <option value="church">⛪ Church</option>
+          <option value="mosque">🕌 Mosque</option>
+          <option value="shop">🏪 Shop / Business</option>
+          <option value="office">🏢 Office Building</option>
+          <option value="bus_stop">🚌 Bus Stop</option>
+          <option value="estate">🏘️ Estate Gate</option>
+          <option value="other">📌 Other</option>
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">Street / Area</label>
+        <input type="text" class="form-input" id="regStreet" placeholder="e.g. Opebi Road, Ikeja">
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">Ward</label>
+        <select class="form-select" id="regWard">
+          <option value="">— Select ward —</option>
+          <option value="opebi">Opebi</option>
+          <option value="oregun">Oregun</option>
+          <option value="maryland">Maryland</option>
+          <option value="ikeja_gra">Ikeja GRA</option>
+          <option value="omole">Omole</option>
+          <option value="anthony">Anthony Village</option>
+          <option value="shomolu">Shomolu</option>
+          <option value="other">Other</option>
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">Notes (optional)</label>
+        <input type="text" class="form-input" id="regNotes" placeholder="e.g. Placed at entrance gate, left side">
+      </div>
+
+      <button class="primary-btn" onclick="registerLocation()" id="regBtn">Register This Location</button>
+    </div>
+  </div>
+
+  <!-- DEPLOYMENTS TAB -->
+  <div class="app-screen" id="tabDeployments">
+    <div class="tabs">
+      <div class="tab" onclick="switchTab('tabRegister', this)">📍 Register Location</div>
+      <div class="tab active" onclick="switchTab('tabDeployments', this)">📋 My Deployments</div>
+      <div class="tab" onclick="switchTab('tabStats', this)">📊 Stats</div>
+    </div>
+    <div class="deployment-list" id="deploymentList">
+      <div class="empty-state">
+        <div class="icon">📭</div>
+        <p>No deployments registered yet.<br>Go to "Register Location" to add your first sticker deployment.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- STATS TAB -->
+  <div class="app-screen" id="tabStats">
+    <div class="tabs">
+      <div class="tab" onclick="switchTab('tabRegister', this)">📍 Register Location</div>
+      <div class="tab" onclick="switchTab('tabDeployments', this)">📋 My Deployments</div>
+      <div class="tab active" onclick="switchTab('tabStats', this)">📊 Stats</div>
+    </div>
+    <div class="stats-row">
+      <div class="mini-stat">
+        <div class="mini-stat-num" id="statDeployed">0</div>
+        <div class="mini-stat-lbl">Deployed</div>
+      </div>
+      <div class="mini-stat">
+        <div class="mini-stat-num" id="statScans">—</div>
+        <div class="mini-stat-lbl">Total Scans</div>
+      </div>
+    </div>
+    <div class="form-card">
+      <h3>📊 Your Performance</h3>
+      <div id="agentStatsDetail">
+        <div class="empty-state" style="padding: 16px 0">
+          <p>Deploy stickers to start seeing scan data here.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+const AGENT_PIN = '3352';
+let currentAgent = null;
+let deployments = JSON.parse(localStorage.getItem('ark_deployments') || '[]');
+
+function doLogin() {
+  const name = document.getElementById('agentName').value.trim();
+  const pin = document.getElementById('agentPin').value.trim();
+  const err = document.getElementById('loginError');
+
+  if (!name) { err.textContent = 'Please enter your name.'; err.style.display = 'block'; return; }
+  if (pin !== AGENT_PIN) { err.textContent = 'Incorrect PIN. Try again.'; err.style.display = 'block'; return; }
+
+  currentAgent = name;
+  err.style.display = 'none';
+  document.getElementById('loginScreen').style.display = 'none';
+  document.getElementById('appScreen').style.display = 'block';
+  document.getElementById('headerName').textContent = name;
+  renderDeployments();
+  updateStats();
+}
+
+function doLogout() {
+  currentAgent = null;
+  document.getElementById('loginScreen').style.display = 'flex';
+  document.getElementById('appScreen').style.display = 'none';
+  document.getElementById('agentPin').value = '';
+}
+
+function switchTab(id, el) {
+  document.querySelectorAll('.app-screen').forEach(s => s.classList.remove('active'));
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  document.querySelectorAll('.tab').forEach(t => {
+    if (t.textContent === el.textContent) t.classList.add('active');
+  });
+  if (id === 'tabDeployments') renderDeployments();
+  if (id === 'tabStats') updateStats();
+}
+
+async function registerLocation() {
+  const code = document.getElementById('regCode').value.trim().toUpperCase();
+  const name = document.getElementById('regName').value.trim();
+  const type = document.getElementById('regType').value;
+  const street = document.getElementById('regStreet').value.trim();
+  const ward = document.getElementById('regWard').value;
+  const notes = document.getElementById('regNotes').value.trim();
+
+  if (!code) { showToast('Enter the sticker code'); return; }
+  if (!name) { showToast('Enter a location name'); return; }
+  if (!type) { showToast('Select a location type'); return; }
+  if (!ward) { showToast('Select a ward'); return; }
+
+  const btn = document.getElementById('regBtn');
+  btn.disabled = true;
+  btn.textContent = 'Registering...';
+
+  const record = {
+    code, name, type, street, ward, notes,
+    agent: currentAgent,
+    timestamp: new Date().toISOString(),
+    scans: 0
+  };
+
+  try {
+    const res = await fetch('/api/locations', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(record)
+    });
+    const data = await res.json();
+    if (!data.success) throw new Error('Server error');
+  } catch {
+    // Store locally as fallback
+  }
+
+  deployments.push(record);
+  localStorage.setItem('ark_deployments', JSON.stringify(deployments));
+
+  // Clear form
+  ['regCode','regName','regStreet','regNotes'].forEach(id => document.getElementById(id).value = '');
+  document.getElementById('regType').value = '';
+  document.getElementById('regWard').value = '';
+
+  const banner = document.getElementById('successBanner');
+  document.getElementById('successMsg').textContent = `Code ${code} registered to "${name}"`;
+  banner.classList.add('show');
+  setTimeout(() => banner.classList.remove('show'), 4000);
+
+  btn.disabled = false;
+  btn.textContent = 'Register This Location';
+  updateStats();
+}
+
+function renderDeployments() {
+  const list = document.getElementById('deploymentList');
+  const myDeploys = deployments.filter(d => d.agent === currentAgent);
+
+  if (myDeploys.length === 0) {
+    list.innerHTML = `<div class="empty-state"><div class="icon">📭</div><p>No deployments registered yet.<br>Go to "Register Location" to add your first sticker.</p></div>`;
+    return;
+  }
+
+  list.innerHTML = myDeploys.reverse().map(d => `
+    <div class="deployment-item">
+      <div class="deploy-code">${d.code}</div>
+      <div class="deploy-info">
+        <div class="deploy-name">${d.name}</div>
+        <div class="deploy-meta">${d.street || ''} · ${d.ward || ''} · ${new Date(d.timestamp).toLocaleDateString('en-GB')}</div>
+      </div>
+      <div class="deploy-badge badge-active">Active</div>
+    </div>
+  `).join('');
+}
+
+function updateStats() {
+  const myDeploys = deployments.filter(d => d.agent === currentAgent);
+  document.getElementById('statDeployed').textContent = myDeploys.length;
+
+  fetch(`/api/stats?agent=${encodeURIComponent(currentAgent)}`)
+    .then(r => r.json())
+    .then(data => {
+      document.getElementById('statScans').textContent = data.totalScans || 0;
+    })
+    .catch(() => {
+      document.getElementById('statScans').textContent = '—';
+    });
+}
+
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2500);
+}
+</script>
+</body>
+</html>
