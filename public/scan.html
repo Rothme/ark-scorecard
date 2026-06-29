@@ -965,7 +965,67 @@ function askFree() {
   runQuery(q, 'Your Question');
 }
 
-/* ── AI QUERY ── */
+/* ── LOCAL DATA LOOKUP ── */
+const TOPIC_ANSWERS = {
+  security: {
+    label: 'SECURITY',
+    answer: `ARK has been one of the most consistent voices on security in the Lagos State House of Assembly. He personally sponsored the Lagos State Kidnapping Prohibition Law, 2017 and championed the Lagos State Neighbourhood Safety Corps Law — creating a community safety layer across the state. Across all three assemblies (8th, 9th and 10th), he has moved motions demanding State Police creation, waterways security, military accountability for civilian killings, and security around General Hospitals. Most recently in the 10th Assembly he moved the "Incessant Killings by Men in Military Uniform" motion, demanding the GOC 81 Division identify erring soldiers. DA-TI-E MO — ARK has fought for the safety of every Ikeja II resident at the highest level of lawmaking.`
+  },
+  roads: {
+    label: 'ROADS & INFRASTRUCTURE',
+    answer: `ARK has relentlessly fought for better roads and infrastructure for Lagos. He led the demand for a ₦52 billion refund from the Federal Government for Lagos roads that FERMA abandoned — roads the state was forced to fix from its own funds. He moved for palliative repairs of the deplorable Ikorodu-Sagamu Road protecting over 42 communities, called for full automation of Lagos traffic monitoring to replace dangerous manual enforcement, and in the 10th Assembly demanded LASIMRA conduct integrity tests on all masts and towers. He also institutionalised Standard Operating Procedures for road contracts — no payment to contractors without secured Right of Way. DA-TI-E MO — ARK has put Lagos roads on the legislative agenda every single year.`
+  },
+  education: {
+    label: 'EDUCATION & YOUTH',
+    answer: `ARK co-championed the Yoruba Language Promotion and Preservation Law, 2017 — ensuring Yoruba is taught as a compulsory subject in all Lagos public and private schools. He moved motions demanding anti-drug campaigns in all secondary schools, protection of public school buildings from hoodlums, and the creation of Guidance and Counselling Units in every school from primary to tertiary level. He co-sponsored the Lagos State University of Science and Technology Law, 2021 and the Lateef Jakande Academy Law. In the 10th Assembly he demanded full implementation of the Yoruba Language Law that had been ignored since 2017. DA-TI-E MO — ARK has championed education for every child in Ikeja II.`
+  },
+  health: {
+    label: 'HEALTH',
+    answer: `ARK co-sponsored the Lagos State Cancer Institute Law, 2016 — establishing a dedicated cancer treatment centre in Lagos. He also co-sponsored the Lagos State Mental Health Service Law, 2018, bringing mental health services under formal state provision for the first time. He moved motions demanding emergency response to Lassa Fever, Cholera outbreaks and COVID-19, and called for security around General Hospitals after patients were attacked inside the wards. In the 10th Assembly he fought for the upgrade of Epe General Hospital to full Federal Hospital status. DA-TI-E MO — ARK has put the health of Lagosians at the centre of his legislative work.`
+  },
+  environment: {
+    label: 'ENVIRONMENT',
+    answer: `ARK has been a consistent environmental champion in the Lagos House of Assembly. He moved the landmark motion on Noise Pollution Regulation — targeting churches, mosques, nightclubs and street vendors causing health hazards. He called for investigation and licence revocation for illegal sand dredging and mining operations destroying Lagos communities. He moved motions on cholera prevention, flood control, gas explosion prevention in residential areas, manhole theft by scavengers, and open defecation enforcement. He co-sponsored the Environmental Management and Protection Law, 2017. DA-TI-E MO — ARK has protected the environment that Ikeja II residents live in.`
+  },
+  laws: {
+    label: 'LAWS PASSED',
+    answer: `ARK has personally sponsored two bills into law: the Lagos State Sports Commission Law, 2016 and the Lagos State Sports Trust Fund Law, 2016 — creating the legal and financial framework for sports development in Lagos. Beyond those, he has co-sponsored 67 bills into law across three assemblies, including the Lagos State Employment Trust Fund Law (2015), Kidnapping Prohibition Law (2017), Yoruba Language Preservation Law (2017), Domestic and Sexual Violence Agency Law (2021), Electricity Law, Local Government Administration Law, and every annual Appropriation Law from 2015 to 2026. DA-TI-E MO — 69 laws bear ARK's name as a co-author.`
+  },
+  ikeja: {
+    label: 'IKEJA II DIRECT',
+    answer: `ARK has delivered direct results for Ikeja II residents. When a 16-year-old boy, Master Bolaji Kalejaiye, was hit by a stray bullet during the Mile 12 market crisis of March 2016, ARK personally secured a scholarship for him and condemned police negligence. He moved to wall off Mile 12 Market from the express road to protect traders and commuters. He secured emergency shelter for Magodo-Isheri mudslide victims. He has held Annual Constituency Stakeholders Meetings across all three assemblies, ensuring residents' demands are included in the Lagos State budget every year. He fought for Epe General Hospital's upgrade to Federal status. DA-TI-E MO — ARK has never forgotten who sent him to the House.`
+  },
+  economy: {
+    label: 'ECONOMY',
+    answer: `ARK co-sponsored the Lagos State Employment Trust Fund Law, 2015 — one of the first state-level laws in Nigeria creating a dedicated fund for jobs and economic empowerment. He consistently fought for Financial Autonomy for the State Legislature and Judiciary, and championed the same autonomy for Local Government legislative arms. He moved motions demanding MSMEs and Commercial Hubs be established in all Senatorial Districts, called on the CBN to curb the Naira decline and enforce laws against dollar transactions in domestic markets. He also institutionalised Quarterly Budget Performance Reviews to hold government accountable for spending. DA-TI-E MO — ARK has fought for the economic wellbeing of every trader and worker in Ikeja II.`
+  }
+};
+
+/* ── KEYWORD MATCHING FOR FREE TEXT ── */
+function localSearch(question) {
+  const q = question.toLowerCase();
+
+  if (q.match(/secur|polic|crime|kidnap|rob|army|soldier|kill|sars|neighbourhood|safety/))
+    return TOPIC_ANSWERS.security;
+  if (q.match(/road|traffic|infra|bridge|lastma|ferma|transport|street|light|mast|tower/))
+    return TOPIC_ANSWERS.roads;
+  if (q.match(/educat|school|youth|drug|yoruba|language|student|teacher|universit|college/))
+    return TOPIC_ANSWERS.education;
+  if (q.match(/health|hospital|cancer|mental|lassa|cholera|covid|disease|medic/))
+    return TOPIC_ANSWERS.health;
+  if (q.match(/environ|flood|drain|noise|dredg|pollut|waste|gas|explosion|sanit|defeca/))
+    return TOPIC_ANSWERS.environment;
+  if (q.match(/law|bill|legislat|sponsor|pass|sign|assembly/))
+    return TOPIC_ANSWERS.laws;
+  if (q.match(/ikeja|constituency|local|community|resident|magodo|mile.?12|constituent/))
+    return TOPIC_ANSWERS.ikeja;
+  if (q.match(/econom|money|employ|fund|business|naira|msme|budget|trade|market/))
+    return TOPIC_ANSWERS.economy;
+
+  return null;
+}
+
+/* ── QUERY ENGINE ── */
 async function runQuery(question, topicLabel) {
   currentQuestion = question;
   document.getElementById('resultTopicLabel').textContent = topicLabel.toUpperCase();
@@ -978,51 +1038,54 @@ async function runQuery(question, topicLabel) {
 
   show('screenResult');
 
+  // Step 1 — try local data first (instant, no API needed)
+  const localResult = localSearch(question);
+
+  if (localResult) {
+    // Answer from local data — no API call needed
+    setTimeout(() => showResult(localResult.answer), 600);
+    return;
+  }
+
+  // Step 2 — free text not matched locally, try API
   try {
     const res = await fetch('/api/ai', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
         model: 'claude-sonnet-4-6',
-        max_tokens: 500,
-        system: `You are the ARK Scorecard assistant for Hon. Adedamola Richard Kasunmu (ARK), Deputy Majority Leader of the Lagos State House of Assembly, Ikeja Constituency II, serving since 2015. His slogan is "DA-TI-E MO" meaning "I have done it."
-
-Answer questions about his legislative record using ONLY the data below. Be specific — name actual bills, motions, and years. Write in a proud but factual tone. Keep your answer to 3-5 sentences maximum. Always mention at least one specific bill name or motion title. End with a brief one-line summary that could be shared.
-
-LEGISLATIVE DATA:
-${ARK_DATA}
-
-IMPORTANT: Never invent achievements not in the data. If something is not covered, say so honestly and pivot to what IS in the record.`,
+        max_tokens: 400,
+        system: `You are the ARK Scorecard assistant for Hon. Adedamola Richard Kasunmu (ARK), Deputy Majority Leader of the Lagos State House of Assembly, Ikeja Constituency II, serving since 2015. His slogan is DA-TI-E MO meaning I have done it. Answer using ONLY this data. Be specific — name actual bills and motions. Keep to 3-4 sentences. End with DA-TI-E MO.\n\n${ARK_DATA}`,
         messages: [{ role: 'user', content: question }]
       })
     });
-
     const data = await res.json();
-    const text = data.content?.[0]?.text || 'Unable to retrieve record at this time. Please try again.';
-
-    currentAnswer = text;
-
-    // Show answer
-    document.getElementById('loadingWrap').style.display = 'none';
-    document.getElementById('answerText').textContent = text;
-    document.getElementById('answerCard').classList.add('visible');
-
-    // Build share card — take first 2 sentences as quote
-    const sentences = text.match(/[^.!?]+[.!?]+/g) || [text];
-    const quote = sentences.slice(0, 2).join(' ').trim();
-    document.getElementById('shareQuote').textContent = `"${quote}"`;
-    document.getElementById('shareCard').classList.add('visible');
-    document.getElementById('resultActions').classList.add('visible');
-
-    // Log AI query
-    logScan(locationCode, 'ai_query');
-
-  } catch (err) {
-    document.getElementById('loadingWrap').style.display = 'none';
-    document.getElementById('answerText').textContent = 'Could not connect to the record. Please check your internet and try again.';
-    document.getElementById('answerCard').classList.add('visible');
-    document.getElementById('resultActions').classList.add('visible');
+    const text = data.content?.[0]?.text;
+    if (text) { showResult(text); return; }
+  } catch {
+    // API not available — fall through to best-match
   }
+
+  // Step 3 — API failed, show most relevant local answer
+  const fallback = TOPIC_ANSWERS.laws; // laws is the most comprehensive fallback
+  fallback.answer = `ARK has an extensive legislative record across security, infrastructure, education, health, environment and the economy. He has co-sponsored 69 bills into law and raised over 150 motions since 2015. Try selecting one of the topic buttons to see his specific record on that area. DA-TI-E MO — Hon. Adedamola Richard Kasunmu, Deputy Majority Leader, Ikeja Constituency II.`;
+  showResult(fallback.answer);
+}
+
+function showResult(text) {
+  currentAnswer = text;
+  document.getElementById('loadingWrap').style.display = 'none';
+  document.getElementById('answerText').textContent = text;
+  document.getElementById('answerCard').classList.add('visible');
+
+  // Share card — first 2 sentences
+  const sentences = text.match(/[^.!?]+[.!?]+/g) || [text];
+  const quote = sentences.slice(0, 2).join(' ').trim();
+  document.getElementById('shareQuote').textContent = `"${quote}"`;
+  document.getElementById('shareCard').classList.add('visible');
+  document.getElementById('resultActions').classList.add('visible');
+
+  logScan(locationCode, 'query');
 }
 
 /* ── NAVIGATION ── */
