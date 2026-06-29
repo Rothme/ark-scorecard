@@ -1,0 +1,1070 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>ARK — DA-TI-E MO</title>
+<meta name="description" content="Find out what Hon. Adedamola Richard Kasunmu has done for Ikeja II">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;0,900;1,700&family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --green:       #1B4332;
+    --green-mid:   #2D6A4F;
+    --gold:        #C9A84C;
+    --gold-light:  #E9C46A;
+    --cream:       #F8F5F0;
+    --charcoal:    #1C1C1E;
+    --muted:       #6B7280;
+    --white:       #FFFFFF;
+  }
+
+  * { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
+
+  html, body {
+    height: 100%;
+    font-family: 'DM Sans', sans-serif;
+    background: var(--green);
+    color: var(--white);
+    overflow-x: hidden;
+  }
+
+  /* ── SCREENS ── */
+  .screen {
+    display: none;
+    min-height: 100vh;
+    flex-direction: column;
+  }
+  .screen.active { display: flex; }
+
+  /* ════════════════════════════════
+     SCREEN 1 — CODE ENTRY
+  ════════════════════════════════ */
+  #screenCode {
+    align-items: center;
+    justify-content: center;
+    padding: 40px 28px;
+    text-align: center;
+    background: var(--green);
+    position: relative;
+    overflow: hidden;
+  }
+
+  #screenCode::before {
+    content: 'ARK';
+    position: absolute;
+    font-family: 'Playfair Display', serif;
+    font-weight: 900;
+    font-size: 55vw;
+    color: rgba(201,168,76,0.04);
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    pointer-events: none;
+    letter-spacing: -4px;
+  }
+
+  .code-photo-wrap {
+    position: relative;
+    width: 110px;
+    height: 110px;
+    margin: 0 auto 24px;
+    z-index: 1;
+  }
+
+  .code-photo {
+    width: 110px;
+    height: 110px;
+    border-radius: 50%;
+    object-fit: cover;
+    object-position: center top;
+    border: 3px solid var(--gold);
+  }
+
+  .code-photo-ring {
+    position: absolute;
+    inset: -6px;
+    border-radius: 50%;
+    border: 1px solid rgba(201,168,76,0.3);
+  }
+
+  .code-ark {
+    font-family: 'Playfair Display', serif;
+    font-weight: 900;
+    font-size: 52px;
+    color: var(--gold);
+    letter-spacing: 10px;
+    line-height: 1;
+    position: relative;
+    z-index: 1;
+  }
+
+  .code-datie {
+    font-family: 'Playfair Display', serif;
+    font-style: italic;
+    font-size: 18px;
+    color: var(--gold-light);
+    letter-spacing: 4px;
+    margin-top: 4px;
+    margin-bottom: 6px;
+    position: relative;
+    z-index: 1;
+  }
+
+  .code-name {
+    font-size: 13px;
+    color: rgba(255,255,255,0.55);
+    letter-spacing: 1px;
+    margin-bottom: 40px;
+    position: relative;
+    z-index: 1;
+    line-height: 1.6;
+  }
+
+  .code-prompt {
+    font-size: 15px;
+    color: rgba(255,255,255,0.7);
+    margin-bottom: 20px;
+    position: relative;
+    z-index: 1;
+    line-height: 1.6;
+    max-width: 300px;
+  }
+
+  .code-input-row {
+    display: flex;
+    gap: 10px;
+    width: 100%;
+    max-width: 320px;
+    position: relative;
+    z-index: 1;
+    margin-bottom: 12px;
+  }
+
+  .code-field {
+    flex: 1;
+    padding: 16px 14px;
+    font-family: 'DM Mono', monospace;
+    font-size: 22px;
+    font-weight: 500;
+    letter-spacing: 5px;
+    text-transform: uppercase;
+    text-align: center;
+    background: rgba(255,255,255,0.07);
+    border: 2px solid rgba(201,168,76,0.5);
+    border-radius: 6px;
+    color: var(--white);
+    outline: none;
+    transition: border-color 0.2s;
+  }
+
+  .code-field:focus { border-color: var(--gold); background: rgba(255,255,255,0.1); }
+  .code-field::placeholder { color: rgba(255,255,255,0.2); letter-spacing: 3px; }
+
+  .code-go {
+    padding: 16px 20px;
+    background: var(--gold);
+    color: var(--green);
+    font-weight: 700;
+    font-size: 15px;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: background 0.2s;
+    white-space: nowrap;
+  }
+
+  .code-go:hover { background: var(--gold-light); }
+
+  .code-skip {
+    font-size: 13px;
+    color: rgba(255,255,255,0.35);
+    cursor: pointer;
+    position: relative;
+    z-index: 1;
+    margin-top: 4px;
+    text-decoration: underline;
+    text-underline-offset: 3px;
+  }
+
+  .code-skip:hover { color: rgba(255,255,255,0.6); }
+
+  .code-error {
+    font-size: 13px;
+    color: #fca5a5;
+    margin-top: 8px;
+    position: relative;
+    z-index: 1;
+    display: none;
+  }
+
+  /* ════════════════════════════════
+     SCREEN 2 — TOPIC SELECTOR
+  ════════════════════════════════ */
+  #screenTopic {
+    background: var(--green);
+  }
+
+  .topic-header {
+    padding: 32px 24px 24px;
+    text-align: center;
+    border-bottom: 1px solid rgba(255,255,255,0.06);
+  }
+
+  .topic-photo-small {
+    width: 72px;
+    height: 72px;
+    border-radius: 50%;
+    object-fit: cover;
+    object-position: center top;
+    border: 2px solid var(--gold);
+    margin-bottom: 12px;
+  }
+
+  .topic-header h1 {
+    font-family: 'Playfair Display', serif;
+    font-size: 26px;
+    color: var(--gold);
+    letter-spacing: 2px;
+    margin-bottom: 4px;
+  }
+
+  .topic-header p {
+    font-size: 13px;
+    color: rgba(255,255,255,0.5);
+    letter-spacing: 1px;
+  }
+
+  .topic-body {
+    flex: 1;
+    padding: 28px 20px;
+    overflow-y: auto;
+  }
+
+  .topic-instruction {
+    font-size: 14px;
+    color: rgba(255,255,255,0.6);
+    margin-bottom: 20px;
+    text-align: center;
+    line-height: 1.6;
+  }
+
+  .topic-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+    margin-bottom: 28px;
+  }
+
+  .topic-btn {
+    background: rgba(255,255,255,0.05);
+    border: 1.5px solid rgba(201,168,76,0.2);
+    border-radius: 10px;
+    padding: 18px 12px;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.2s;
+    color: var(--white);
+  }
+
+  .topic-btn:hover, .topic-btn.selected {
+    background: rgba(201,168,76,0.12);
+    border-color: var(--gold);
+  }
+
+  .topic-btn .t-icon { font-size: 28px; display: block; margin-bottom: 8px; }
+  .topic-btn .t-label { font-size: 13px; font-weight: 600; letter-spacing: 0.5px; }
+  .topic-btn .t-count { font-size: 11px; color: var(--gold); margin-top: 3px; font-family: 'DM Mono', monospace; }
+
+  .topic-divider {
+    text-align: center;
+    font-size: 12px;
+    color: rgba(255,255,255,0.3);
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    margin-bottom: 16px;
+    position: relative;
+  }
+
+  .topic-divider::before, .topic-divider::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    width: 35%;
+    height: 1px;
+    background: rgba(255,255,255,0.1);
+  }
+  .topic-divider::before { left: 0; }
+  .topic-divider::after { right: 0; }
+
+  .free-query-wrap {
+    position: relative;
+    margin-bottom: 8px;
+  }
+
+  .free-query {
+    width: 100%;
+    padding: 16px 52px 16px 16px;
+    background: rgba(255,255,255,0.07);
+    border: 1.5px solid rgba(201,168,76,0.25);
+    border-radius: 10px;
+    color: var(--white);
+    font-size: 15px;
+    font-family: 'DM Sans', sans-serif;
+    outline: none;
+    transition: border-color 0.2s;
+    resize: none;
+    line-height: 1.5;
+    min-height: 56px;
+  }
+
+  .free-query:focus { border-color: var(--gold); background: rgba(255,255,255,0.1); }
+  .free-query::placeholder { color: rgba(255,255,255,0.3); }
+
+  .free-send {
+    position: absolute;
+    right: 12px;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 36px;
+    height: 36px;
+    background: var(--gold);
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 16px;
+    color: var(--green);
+    transition: background 0.2s;
+  }
+
+  .free-send:hover { background: var(--gold-light); }
+
+  /* ════════════════════════════════
+     SCREEN 3 — RESULT
+  ════════════════════════════════ */
+  #screenResult {
+    background: var(--green);
+  }
+
+  .result-header {
+    padding: 20px 20px 0;
+    display: flex;
+    align-items: center;
+    gap: 14px;
+  }
+
+  .back-btn {
+    width: 38px;
+    height: 38px;
+    background: rgba(255,255,255,0.08);
+    border: 1px solid rgba(255,255,255,0.1);
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    font-size: 18px;
+    color: rgba(255,255,255,0.7);
+    flex-shrink: 0;
+    transition: all 0.2s;
+  }
+  .back-btn:hover { background: rgba(255,255,255,0.15); }
+
+  .result-header-info { flex: 1; }
+  .result-header-info .r-topic {
+    font-size: 11px;
+    color: var(--gold);
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    font-family: 'DM Mono', monospace;
+  }
+  .result-header-info .r-sub {
+    font-size: 13px;
+    color: rgba(255,255,255,0.5);
+    margin-top: 2px;
+  }
+
+  .result-photo-sm {
+    width: 42px;
+    height: 42px;
+    border-radius: 50%;
+    object-fit: cover;
+    object-position: center top;
+    border: 2px solid var(--gold);
+    flex-shrink: 0;
+  }
+
+  .result-body {
+    flex: 1;
+    padding: 24px 20px;
+    overflow-y: auto;
+  }
+
+  /* Loading state */
+  .loading-wrap {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: 240px;
+    gap: 20px;
+  }
+
+  .loading-spinner {
+    width: 48px;
+    height: 48px;
+    border: 3px solid rgba(201,168,76,0.2);
+    border-top-color: var(--gold);
+    border-radius: 50%;
+    animation: spin 0.9s linear infinite;
+  }
+
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  .loading-text {
+    color: rgba(255,255,255,0.5);
+    font-size: 14px;
+    font-style: italic;
+    text-align: center;
+    line-height: 1.6;
+  }
+
+  /* Answer card */
+  .answer-card {
+    background: rgba(255,255,255,0.05);
+    border: 1px solid rgba(201,168,76,0.2);
+    border-left: 4px solid var(--gold);
+    border-radius: 10px;
+    padding: 24px;
+    margin-bottom: 20px;
+    display: none;
+  }
+
+  .answer-card.visible { display: block; }
+
+  .answer-label {
+    font-size: 10px;
+    font-family: 'DM Mono', monospace;
+    color: var(--gold);
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    margin-bottom: 14px;
+  }
+
+  .answer-text {
+    font-size: 15px;
+    line-height: 1.85;
+    color: rgba(255,255,255,0.9);
+  }
+
+  /* Share card */
+  .share-card {
+    background: var(--charcoal);
+    border-radius: 12px;
+    padding: 24px;
+    margin-bottom: 20px;
+    display: none;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .share-card::before {
+    content: 'ARK';
+    position: absolute;
+    font-family: 'Playfair Display', serif;
+    font-weight: 900;
+    font-size: 120px;
+    color: rgba(201,168,76,0.05);
+    right: -10px;
+    bottom: -20px;
+    letter-spacing: -4px;
+    pointer-events: none;
+  }
+
+  .share-card.visible { display: block; }
+
+  .share-card-top {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    margin-bottom: 16px;
+  }
+
+  .share-photo {
+    width: 56px;
+    height: 56px;
+    border-radius: 50%;
+    object-fit: cover;
+    object-position: center top;
+    border: 2px solid var(--gold);
+    flex-shrink: 0;
+  }
+
+  .share-card-id .s-ark {
+    font-family: 'Playfair Display', serif;
+    font-weight: 900;
+    font-size: 22px;
+    color: var(--gold);
+    letter-spacing: 4px;
+  }
+
+  .share-card-id .s-datie {
+    font-family: 'Playfair Display', serif;
+    font-style: italic;
+    font-size: 13px;
+    color: var(--gold-light);
+    letter-spacing: 2px;
+  }
+
+  .share-card-id .s-name {
+    font-size: 11px;
+    color: rgba(255,255,255,0.4);
+    margin-top: 2px;
+    line-height: 1.4;
+  }
+
+  .share-card-quote {
+    font-size: 13px;
+    color: rgba(255,255,255,0.75);
+    line-height: 1.7;
+    border-top: 1px solid rgba(255,255,255,0.07);
+    padding-top: 14px;
+    font-style: italic;
+  }
+
+  .share-card-url {
+    font-size: 11px;
+    color: var(--gold);
+    font-family: 'DM Mono', monospace;
+    margin-top: 12px;
+    letter-spacing: 1px;
+  }
+
+  /* Action buttons */
+  .result-actions {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    display: none;
+  }
+
+  .result-actions.visible { display: flex; }
+
+  .act-btn {
+    width: 100%;
+    padding: 16px;
+    border-radius: 8px;
+    font-size: 15px;
+    font-weight: 600;
+    border: none;
+    cursor: pointer;
+    transition: all 0.2s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+  }
+
+  .act-wa { background: #25D366; color: #fff; }
+  .act-wa:hover { background: #22c55e; }
+
+  .act-another {
+    background: rgba(255,255,255,0.07);
+    border: 1.5px solid rgba(201,168,76,0.3);
+    color: var(--gold);
+  }
+  .act-another:hover { background: rgba(201,168,76,0.12); }
+
+  /* ── TOAST ── */
+  .toast {
+    position: fixed;
+    bottom: 28px;
+    left: 50%;
+    transform: translateX(-50%) translateY(80px);
+    background: var(--charcoal);
+    color: var(--gold);
+    padding: 12px 20px;
+    border-radius: 8px;
+    font-size: 14px;
+    font-weight: 500;
+    border: 1px solid var(--gold);
+    transition: transform 0.3s;
+    z-index: 999;
+    white-space: nowrap;
+  }
+  .toast.show { transform: translateX(-50%) translateY(0); }
+</style>
+</head>
+<body>
+
+<!-- ══════════════════════════════════
+     SCREEN 1: CODE ENTRY
+══════════════════════════════════ -->
+<div class="screen active" id="screenCode">
+  <div class="code-photo-wrap">
+    <img src="ark.jpg" alt="Hon. Adedamola Richard Kasunmu" class="code-photo">
+    <div class="code-photo-ring"></div>
+  </div>
+
+  <div class="code-ark">ARK</div>
+  <div class="code-datie">DA-TI-E MO</div>
+  <div class="code-name">
+    Hon. Adedamola Richard Kasunmu<br>
+    Deputy Majority Leader · Ikeja Constituency II
+  </div>
+
+  <p class="code-prompt">Enter the code printed on the sticker below the QR code</p>
+
+  <div class="code-input-row">
+    <input
+      type="text"
+      class="code-field"
+      id="codeField"
+      placeholder="IK2-000"
+      maxlength="10"
+      autocomplete="off"
+      autocorrect="off"
+      spellcheck="false"
+    >
+    <button class="code-go" onclick="submitCode()">GO</button>
+  </div>
+
+  <div class="code-error" id="codeError">Code not recognised. Check and try again.</div>
+  <span class="code-skip" onclick="skipToTool()">Skip — I don't have a code</span>
+</div>
+
+<!-- ══════════════════════════════════
+     SCREEN 2: TOPIC SELECTOR
+══════════════════════════════════ -->
+<div class="screen" id="screenTopic">
+  <div class="topic-header">
+    <img src="ark.jpg" alt="Hon. Kasunmu" class="topic-photo-small">
+    <h1>DA-TI-E MO</h1>
+    <p>What has ARK done for Ikeja II?</p>
+  </div>
+
+  <div class="topic-body">
+    <p class="topic-instruction">Pick a topic or type your own question below</p>
+
+    <div class="topic-grid">
+      <div class="topic-btn" onclick="askTopic(this, 'What has Hon. Kasunmu done about security, policing and crime prevention in Ikeja and Lagos State?')">
+        <span class="t-icon">🔒</span>
+        <div class="t-label">Security</div>
+        <div class="t-count">20+ motions</div>
+      </div>
+      <div class="topic-btn" onclick="askTopic(this, 'What has Hon. Kasunmu done about roads, traffic, and infrastructure in Lagos State?')">
+        <span class="t-icon">🏗️</span>
+        <div class="t-label">Roads & Infra</div>
+        <div class="t-count">15+ motions</div>
+      </div>
+      <div class="topic-btn" onclick="askTopic(this, 'What has Hon. Kasunmu done about education, youth development and schools in Lagos State?')">
+        <span class="t-icon">📚</span>
+        <div class="t-label">Education</div>
+        <div class="t-count">14+ motions</div>
+      </div>
+      <div class="topic-btn" onclick="askTopic(this, 'What has Hon. Kasunmu done about health, hospitals and disease outbreaks in Lagos State?')">
+        <span class="t-icon">🏥</span>
+        <div class="t-label">Health</div>
+        <div class="t-count">10+ motions</div>
+      </div>
+      <div class="topic-btn" onclick="askTopic(this, 'What has Hon. Kasunmu done about the environment, flooding, waste and noise pollution in Lagos?')">
+        <span class="t-icon">🌿</span>
+        <div class="t-label">Environment</div>
+        <div class="t-count">18+ motions</div>
+      </div>
+      <div class="topic-btn" onclick="askTopic(this, 'What laws has Hon. Kasunmu personally sponsored or co-sponsored into law in Lagos State?')">
+        <span class="t-icon">🏛️</span>
+        <div class="t-label">Laws Passed</div>
+        <div class="t-count">69 bills</div>
+      </div>
+      <div class="topic-btn" onclick="askTopic(this, 'What has Hon. Kasunmu done specifically for Ikeja Constituency II residents and the local community?')">
+        <span class="t-icon">🏘️</span>
+        <div class="t-label">Ikeja II</div>
+        <div class="t-count">Direct impact</div>
+      </div>
+      <div class="topic-btn" onclick="askTopic(this, 'What has Hon. Kasunmu done about the economy, employment, MSMEs and cost of living in Lagos?')">
+        <span class="t-icon">💰</span>
+        <div class="t-label">Economy</div>
+        <div class="t-count">15+ motions</div>
+      </div>
+    </div>
+
+    <div class="topic-divider">or ask directly</div>
+
+    <div class="free-query-wrap">
+      <textarea
+        class="free-query"
+        id="freeQuery"
+        placeholder="e.g. What has he done about Yoruba language?"
+        rows="2"
+        onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();askFree();}"
+      ></textarea>
+      <button class="free-send" onclick="askFree()">→</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════
+     SCREEN 3: RESULT
+══════════════════════════════════ -->
+<div class="screen" id="screenResult">
+  <div class="result-header">
+    <div class="back-btn" onclick="goBack()">←</div>
+    <div class="result-header-info">
+      <div class="r-topic" id="resultTopicLabel">LOADING</div>
+      <div class="r-sub">ARK's Legislative Record</div>
+    </div>
+    <img src="ark.jpg" alt="Hon. Kasunmu" class="result-photo-sm">
+  </div>
+
+  <div class="result-body">
+    <!-- Loading -->
+    <div class="loading-wrap" id="loadingWrap">
+      <div class="loading-spinner"></div>
+      <div class="loading-text">Searching ARK's<br>legislative record...</div>
+    </div>
+
+    <!-- Answer -->
+    <div class="answer-card" id="answerCard">
+      <div class="answer-label">ARK's Record</div>
+      <div class="answer-text" id="answerText"></div>
+    </div>
+
+    <!-- Share card -->
+    <div class="share-card" id="shareCard">
+      <div class="share-card-top">
+        <img src="ark.jpg" alt="Hon. Kasunmu" class="share-photo">
+        <div class="share-card-id">
+          <div class="s-ark">ARK</div>
+          <div class="s-datie">DA-TI-E MO</div>
+          <div class="s-name">Hon. Adedamola Richard Kasunmu<br>Deputy Majority Leader · Ikeja II</div>
+        </div>
+      </div>
+      <div class="share-card-quote" id="shareQuote"></div>
+      <div class="share-card-url">ark-scorecard.pages.dev</div>
+    </div>
+
+    <!-- Actions -->
+    <div class="result-actions" id="resultActions">
+      <button class="act-btn act-wa" onclick="shareWhatsApp()">
+        📱 Share on WhatsApp
+      </button>
+      <button class="act-btn act-another" onclick="askAnother()">
+        ↩ Ask Another Question
+      </button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+/* ── ACHIEVEMENT DATA ── */
+const ARK_DATA = `
+Hon. Adedamola Richard Kasunmu, popularly known as ARK, is the Deputy Majority Leader of the Lagos State House of Assembly. He represents Ikeja Constituency II and has served since June 2015 across the 8th, 9th, and 10th Legislative Assemblies. His slogan is "DA-TI-E MO" — meaning "I have done it."
+
+BILLS HE PERSONALLY SPONSORED INTO LAW:
+- Lagos State Sports Commission Law, 2016
+- Lagos State Sports Trust Fund Law, 2016
+
+MAJOR LAWS HE CO-SPONSORED (69+ total across three assemblies):
+- Lagos State Employment Trust Fund Law, 2015 — created jobs and empowerment fund
+- Lagos State Properties Protection Law, 2015 — protects property owners from illegal seizure
+- Lagos State Kidnapping Prohibition Law, 2017 — criminalises kidnapping with severe penalties
+- Yoruba Language Promotion and Preservation Law, 2017 — mandates Yoruba in schools
+- Lagos State Cancer Institute Law, 2016 — established cancer treatment centre
+- Lagos State Mental Health Service Law, 2018 — created dedicated mental health services
+- Lagos State Neighbourhood Safety Corps Law, 2016 & 2020 — created community safety officers
+- Emergency Corona Virus Pandemic Law, 2020 — legal framework for COVID-19 response
+- Lagos State Domestic and Sexual Violence Agency Law, 2021 — protects victims of domestic violence
+- Lagos State Real Estate Regulatory Authority Law, 2021 — regulates real estate to protect buyers
+- Lagos State Fire Service Law, 2021 — upgraded fire service across the state
+- Lagos State University of Science and Technology Law, 2021 — established new university
+- Environmental Management and Protection Law, 2017 — protects Lagos environment
+- Land Use Charge (Repeal and Re-Enactment) Law, 2017 — reformed property taxation
+- Lagos State Transport Sector Reform Law, 2017 — restructured transport system
+- Electricity Law (10th Assembly) — reformed electricity distribution
+- Local Government Administration Law (10th Assembly) — restructured LGA governance
+- Lateef Jakande Academy Law — honours Lagos's greatest governor with dedicated institution
+- Appropriation Laws 2015 through 2026 — annual budgets ensuring government runs
+
+SECURITY (20+ MOTIONS):
+- Improving Security on Lagos Waterways — demanded Navy and RRS protect waterways after armed robbers used them as escape routes
+- Advocated for State Police creation in every single assembly (8th, 9th, 10th)
+- Lagos State Kidnapping Prohibition Law, 2017 — co-sponsored
+- Lagos State Neighbourhood Safety Corps — championed its creation and upgrade
+- Incessant Killings by Men in Military Uniform — demanded GOC 81 Division identify soldiers killing civilians
+- Security beef-up in Lagos coastal towns — Epe, Ikorodu, Maya axis
+- Demanded accountability after fracas between Okada riders and Police in Ejigbo-Isolo
+- Called for security around all General Hospitals after patient was hacked to death at Orile-Agege General Hospital
+- Demanded investigation and justice after gruesome murder of Prince Kazeem Ademola Akinloye
+- SARS petition — moved against Special Anti-Robbery Squad abuses
+- EndSARS aftermath — demanded federal compensation for Lagos State property destruction
+- Cultist clashes in Mushin — called all security commissioners for urgent solution
+
+ROADS AND INFRASTRUCTURE (15+ MOTIONS):
+- Called for automation of Lagos entire traffic monitoring system — demanded LASTMA use technology not manual enforcement
+- Led demand for ₦52 billion federal road refund — Lagos State spent on federal roads that FERMA abandoned
+- Palliative repairs of Ikorodu-Sagamu Road — protecting 42+ communities on that axis
+- Road quality and contractor accountability — demanded contractors be blacklisted for poor execution
+- Standard Operating Procedures for road contracts — no payment without Right of Way
+- LASIMRA integrity tests on masts and towers — safety for telecom infrastructure
+- Functional streetlights across Lagos — demanded solar streetlights in the 2025 budget
+- Recklessness of Road Users — called LASTMA and road unions to account
+- Extortion of commercial bus drivers by transport unions — demanded investigation
+- Completion of Bola Ahmed Tinubu Road in Baiyeku LCDA
+- Traffic gridlock menace — consistently raised this across all three assemblies
+
+ENVIRONMENT AND HEALTH:
+- Noise Pollution Regulation — demanded enforcement against churches, mosques, nightclubs
+- Illegal Dredging and Mining — called for revocation of licences and investigation of environmental damage
+- Cholera outbreak — called on Health, Environment and LGA chairmen for emergency action
+- Lassa Fever sensitization — demanded mass public enlightenment after Lagos confirmed cases
+- Fatal Gas Explosion at Abule-Ado Festac Town — demanded investigation and ban on residential gas plants
+- Incessant residential gas explosions — demanded DPR tighten licensing
+- Flood and drainage management — dedicated entire environmental sanitation month to clearing drains
+- Threat of ocean surge in coastal communities
+- Environmental Sanitation Law enforcement — demanded fines and community service for violators
+- Open Defecation — demanded campaign and enforcement across Lagos
+- Lagos Cancer Institute Law — co-sponsored
+- Lagos Mental Health Service Law — co-sponsored
+- Scavengers and manhole theft — demanded composite materials to stop theft of public infrastructure
+
+EDUCATION AND YOUTH:
+- Yoruba Language as compulsory subject in ALL Lagos schools — public and private
+- Yoruba Language Preservation Law, 2017 — co-championed
+- Implementation of Yoruba Language Law (10th Assembly) — demanded Governor enforce it
+- Anti-Drug Campaign for all Secondary Schools — demanded NDLEA address crisis
+- Curbing drug abuse in Lagos — called NDLEA commander to brief the House
+- School building protection from hoodlums and miscreants
+- Guidance and Counselling Unit in every school — primary, secondary and tertiary
+- School COVID-19 compliance monitoring — sent committee to inspect all schools
+- Sexual molestation in Queens College Yaba — mandated immediate investigation
+- Lagos State University of Science and Technology Law, 2021
+- Lagos State University of Education Law, 2021
+- Lateef Jakande Academy Law
+
+ECONOMY AND GOVERNANCE:
+- Lagos State Employment Trust Fund Law, 2015 — first law creating a state-level jobs fund
+- Financial Autonomy for State Legislature and Judiciary — championed across all assemblies
+- LGA Revenue Compliance — demanded agents wear ID badges and collect only approved levies
+- MSMEs and Commercial Hubs in all Senatorial Districts — demanded economic hubs for traders
+- Naira decline — called on CBN to enforce monetary regulations and stop dollar transactions locally
+- Effects of economic hardship — called stakeholder meeting with all commissioners
+- Quarterly Budget Performance Review — institutionalised accountability for government spending
+- Public Procurement Agency Law, 2021
+- Financial Autonomy for LGA Legislative Arms — local government accountability
+
+DIRECT CONSTITUENCY IMPACT — IKEJA II:
+- Mile 12 Market — moved to wall it off from the express road to protect traders and road users
+- Stray bullet victim Master Bolaji Kalejaiye, 16 — secured scholarship for him and condemned police negligence
+- Mudslide relief for Magodo-Isheri victims — called for emergency shelter
+- Epe General Hospital upgrade to Federal Hospital status — fought for upgrade from state to federal
+- Ocean surge and flooding in Eti-Osa II — set up sub-committee to investigate land loss to sea
+- LGA financial autonomy for Ikeja legislative arms
+- Annual Constituency Stakeholders Meetings — ensures residents' demands get into the state budget
+- Ikorodu-Sagamu Road palliative repairs — protecting communities along the axis
+- Mile 12 crisis March 2016 — demanded Commissioner of Police accountability
+
+YORUBA LANGUAGE AND CULTURE:
+- Yoruba Language Promotion and Preservation Law, 2017 — co-championed into law
+- Teaching of Yoruba as compulsory subject — motion in 8th Assembly
+- Implementation of Yoruba Language Law — motion in 10th Assembly demanding enforcement
+- Preventing Yoruba Language from extinction — called for annual Yoruba Day and awards
+- Called on Law Reform Commission to translate all Lagos laws into Yoruba
+
+DEMOCRACY AND RIGHTS:
+- Petition against SARS — one of the first voices demanding accountability
+- EndSARS — demanded compensation and state police after the protests
+- Reversal of Impeachment of Otunba Femi Pedro — cleared his name after 2007 stigma
+- Girl Child rights — championed International Day of the Girl Child recognition
+- Domestic and Sexual Violence Agency Law, 2021 — co-sponsored
+- Murder of Miss Oluwabamise — demanded CCTV in all BRT buses
+- True Federalism — consistently advocated for fiscal federalism and state police
+- June 12 Democracy Day — commended its recognition annually
+- World Parliamentary Day — championed its commemoration in Lagos
+
+COMMITTEE LEADERSHIP:
+- CHAIRED: Youths, Sport and Social Development (8th Assembly 2015-2019)
+- CHAIRED: Lands Committee (9th Assembly 2019-2023)
+- CHAIRED: Inter-Parliamentary Relations (10th Assembly 2023-present)
+- APPOINTED: Deputy Majority Leader, 10th Assembly — June 2023
+- Member of 15 standing committees simultaneously across Finance, Education, Health, Transport, Housing, Works, Physical Planning, Public Accounts and more
+`;
+
+let currentQuestion = '';
+let currentAnswer = '';
+let locationCode = null;
+
+/* ── URL PARAM ── */
+window.addEventListener('load', () => {
+  const params = new URLSearchParams(window.location.search);
+  locationCode = params.get('loc') || null;
+  if (locationCode) {
+    // Auto-log this as a scan from a pre-registered location
+    logScan(locationCode, 'auto');
+    skipToTool();
+  }
+});
+
+/* ── SCREEN NAVIGATION ── */
+function show(screenId) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById(screenId).classList.add('active');
+  window.scrollTo(0, 0);
+}
+
+/* ── CODE ENTRY ── */
+async function submitCode() {
+  const code = document.getElementById('codeField').value.trim().toUpperCase();
+  const errEl = document.getElementById('codeError');
+
+  if (!code) { errEl.style.display = 'block'; errEl.textContent = 'Please enter the code from your sticker.'; return; }
+
+  errEl.style.display = 'none';
+  locationCode = code;
+
+  try {
+    const res = await fetch('/api/scan', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ code, timestamp: new Date().toISOString() })
+    });
+    const data = await res.json();
+    if (!data.success) {
+      errEl.textContent = `Code "${code}" not recognised. Check the sticker and try again.`;
+      errEl.style.display = 'block';
+      return;
+    }
+  } catch {
+    // If API fails, still let them through
+  }
+
+  show('screenTopic');
+}
+
+function skipToTool() {
+  logScan(null, 'skip');
+  show('screenTopic');
+}
+
+/* ── TOPIC SELECTION ── */
+function askTopic(el, question) {
+  document.querySelectorAll('.topic-btn').forEach(b => b.classList.remove('selected'));
+  el.classList.add('selected');
+  const label = el.querySelector('.t-label').textContent;
+  setTimeout(() => runQuery(question, label), 150);
+}
+
+function askFree() {
+  const q = document.getElementById('freeQuery').value.trim();
+  if (!q) return;
+  runQuery(q, 'Your Question');
+}
+
+/* ── AI QUERY ── */
+async function runQuery(question, topicLabel) {
+  currentQuestion = question;
+  document.getElementById('resultTopicLabel').textContent = topicLabel.toUpperCase();
+
+  // Reset result screen
+  document.getElementById('loadingWrap').style.display = 'flex';
+  document.getElementById('answerCard').classList.remove('visible');
+  document.getElementById('shareCard').classList.remove('visible');
+  document.getElementById('resultActions').classList.remove('visible');
+
+  show('screenResult');
+
+  try {
+    const res = await fetch('/api/ai', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        model: 'claude-sonnet-4-6',
+        max_tokens: 500,
+        system: `You are the ARK Scorecard assistant for Hon. Adedamola Richard Kasunmu (ARK), Deputy Majority Leader of the Lagos State House of Assembly, Ikeja Constituency II, serving since 2015. His slogan is "DA-TI-E MO" meaning "I have done it."
+
+Answer questions about his legislative record using ONLY the data below. Be specific — name actual bills, motions, and years. Write in a proud but factual tone. Keep your answer to 3-5 sentences maximum. Always mention at least one specific bill name or motion title. End with a brief one-line summary that could be shared.
+
+LEGISLATIVE DATA:
+${ARK_DATA}
+
+IMPORTANT: Never invent achievements not in the data. If something is not covered, say so honestly and pivot to what IS in the record.`,
+        messages: [{ role: 'user', content: question }]
+      })
+    });
+
+    const data = await res.json();
+    const text = data.content?.[0]?.text || 'Unable to retrieve record at this time. Please try again.';
+
+    currentAnswer = text;
+
+    // Show answer
+    document.getElementById('loadingWrap').style.display = 'none';
+    document.getElementById('answerText').textContent = text;
+    document.getElementById('answerCard').classList.add('visible');
+
+    // Build share card — take first 2 sentences as quote
+    const sentences = text.match(/[^.!?]+[.!?]+/g) || [text];
+    const quote = sentences.slice(0, 2).join(' ').trim();
+    document.getElementById('shareQuote').textContent = `"${quote}"`;
+    document.getElementById('shareCard').classList.add('visible');
+    document.getElementById('resultActions').classList.add('visible');
+
+    // Log AI query
+    logScan(locationCode, 'ai_query');
+
+  } catch (err) {
+    document.getElementById('loadingWrap').style.display = 'none';
+    document.getElementById('answerText').textContent = 'Could not connect to the record. Please check your internet and try again.';
+    document.getElementById('answerCard').classList.add('visible');
+    document.getElementById('resultActions').classList.add('visible');
+  }
+}
+
+/* ── NAVIGATION ── */
+function goBack() { show('screenTopic'); }
+
+function askAnother() {
+  document.querySelectorAll('.topic-btn').forEach(b => b.classList.remove('selected'));
+  document.getElementById('freeQuery').value = '';
+  show('screenTopic');
+}
+
+/* ── SHARE ── */
+function shareWhatsApp() {
+  const sentences = currentAnswer.match(/[^.!?]+[.!?]+/g) || [currentAnswer];
+  const snippet = sentences.slice(0, 2).join(' ').trim();
+
+  const text = `*ARK — DA-TI-E MO* 🏛️\n\n*${currentQuestion}*\n\n${snippet}\n\n_Hon. Adedamola Richard Kasunmu_\n_Deputy Majority Leader · Ikeja Constituency II_\n\nScan the ARK QR Code or visit:\nark-scorecard.pages.dev/scan`;
+
+  window.open(`https://wa.me/?text=${encodeURIComponent(text)}`, '_blank');
+}
+
+/* ── SCAN LOGGING ── */
+function logScan(code, type) {
+  fetch('/api/scan', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ code, timestamp: new Date().toISOString(), type })
+  }).catch(() => {});
+}
+
+/* ── TOAST ── */
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 3000);
+}
+
+/* ── ENTER KEY on code field ── */
+document.getElementById('codeField').addEventListener('keydown', e => {
+  if (e.key === 'Enter') submitCode();
+});
+</script>
+</body>
+</html>
